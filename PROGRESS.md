@@ -1,0 +1,86 @@
+# 앱인토스 미니앱 4종 개발 - 진행 현황
+
+## 프로젝트 개요
+- **목표**: 앱인토스에 4개의 선점 가능한 미니앱 출시
+- **개발자**: 유성 (yumi-kim-79)
+- **계정**: 김유미님 워크스페이스 "앱몬스터" (workspace ID: 38745)
+- **GitHub**: yumi-kim-79
+- **Firebase**: mycloud-5ce96 프로젝트 공용 사용 (다른 앱들과 컬렉션 prefix로 분리)
+
+## 4개 앱 로드맵
+1. ✅ **내 인생 시급** (life-wage) - V1 완성 (수동 입력 기반)
+2. ⏳ **내 카드 장례식** (card-funeral) - 다음 차례
+3. ⏳ **경조사 가계부** (gyeongjo-book) - 대기
+4. ⏳ **오늘의 환승 동전** (coin-saver) - 대기 (V1만 출시, V2는 SDK 답변 후 결정)
+
+## 공통 기술 스택
+- **프레임워크**: create-ait-app (앱인토스 React 기반 템플릿)
+- **SDK**: @apps-in-toss/web-framework v2.4.7
+- **UI**: @toss/tds-mobile (TDS Mobile 컴포넌트)
+- **상태 관리**: React 18 hooks
+- **백엔드**: Firebase Firestore
+- **빌드**: Vite 6
+- **언어**: TypeScript 5.7
+
+## Firebase 설정
+- **프로젝트 ID**: mycloud-5ce96
+- **앱 등록**: life-wage (웹앱), 추가 앱은 콘솔에서 차례로 등록 필요
+- **컬렉션 prefix**:
+  - `wage_*` - 내 인생 시급
+  - `card_*` - 내 카드 장례식 (예정)
+  - `gyeongjo_*` - 경조사 가계부 (예정)
+  - `coin_*` - 환승 동전 (예정)
+- **보안 규칙**: 현재 임시 개방 (allow read, write: if true)
+  - ⚠️ 출시 전 반드시 Firebase Anonymous Auth 도입 후 잠가야 함
+  - userId 단위로 본인 데이터만 read/write 허용 규칙으로 변경
+
+## 사용자 식별 전략
+- 토스 SDK의 `getAnonymousKey()` 사용 (로그인 없는 익명 키)
+- 브라우저 환경(개발용)에서는 `dev_xxxxxxxx` 형식 localStorage fallback
+- src/hooks/useTossUser.ts 참조
+
+## 1번 앱 "내 인생 시급" 완료 사항
+### 디렉토리: ~/yumi-toss/life-wage
+
+### 구현된 화면
+- **Onboarding**: 월 실수령액 + 월 근무시간 입력 → 시급 자동 계산
+- **Home**: 시급 표시 + 이번 달 누적 + 금액 입력 + 카피 미리보기 + 최근 기록
+
+### 주요 파일
+- src/types.ts - WageUser, WageRecord 타입
+- src/hooks/useTossUser.ts - 토스 익명 키 + dev fallback
+- src/lib/firebase.ts - Firestore 초기화
+- src/lib/wageDb.ts - saveUserWage, getUserWage, addRecord, getRecords
+- src/lib/wageCopy.ts - 9구간 × 2~3 변형 카피 + formatHours
+- src/screens/Onboarding.tsx
+- src/screens/Home.tsx
+- src/App.tsx - 라우팅 (Onboarding ↔ Home)
+- granite.config.ts - brand.primaryColor #F06292
+
+### 환경변수 (.env.local)
+- VITE_FIREBASE_API_KEY 외 6개 (mycloud-5ce96 라이브 키 채워짐)
+
+### 검증 완료
+- ✅ tsc --noEmit 0 errors
+- ✅ vite build 성공
+- ✅ 브라우저 동작 확인 (Onboarding → Home → 기록 추가 → Firestore 저장)
+- ✅ 카피 9구간 자연스러움 검토 완료
+
+## 진행 중인 외부 작업
+- ⏳ **사업자 등록**: 홈택스 신청 예정 (정보통신업/응용소프트웨어 개발 및 공급업, 간이과세자)
+- ⏳ **앱인토스 SDK 결제내역 API 권한 문의**: 커뮤니티 글 작성됨, 운영진 보류 검토 대기
+  - 답변 결과에 따라 4번 앱(환승 동전)의 V2 구현 여부 결정
+
+## 다음 세션 시작 시
+1. 이 PROGRESS.md 먼저 읽기
+2. 마지막으로 git log 확인하여 최신 상태 파악
+3. 다음 작업할 앱 폴더로 cd
+4. docs/skills/ 의 apps-in-toss.md, tds-mobile.md 참고
+
+## 출시 전 체크리스트 (모든 앱 공통)
+- [ ] Node 24로 업그레이드 (granite build/deploy 위해)
+- [ ] Firebase Auth Anonymous 도입 + 보안 규칙 잠그기
+- [ ] 사업자 등록 완료
+- [ ] 콘솔에서 각 앱 등록 + API 키 발급
+- [ ] 토스 샌드박스 실기기 테스트
+- [ ] 출시 검수 신청 (영업일 7일 소요)
