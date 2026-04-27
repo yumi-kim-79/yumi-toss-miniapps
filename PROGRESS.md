@@ -11,7 +11,7 @@
 1. ✅ **내 인생 시급** (life-wage) - V1 완성 (수동 입력 기반)
 2. ✅ **내 카드 장례식** (card-funeral) - V1 완성
 3. ✅ **경조사 가계부** (gyeongjo-book) - V1 완성
-4. ⏳ **오늘의 환승 동전** (coin-saver) - 대기 (V1만 출시, V2는 SDK 답변 후 결정)
+4. ✅ **오늘의 환승 동전** (coin-saver) - V1 완성 (V2는 SDK 결제내역 권한 답변 후 결정)
 
 ## 공통 기술 스택
 - **프레임워크**: create-ait-app (앱인토스 React 기반 템플릿)
@@ -29,7 +29,7 @@
   - `wage_*` - 내 인생 시급
   - `card_*` - 내 카드 장례식 (예정)
   - `gyeongjo_*` - 경조사 가계부 (예정)
-  - `coin_*` - 환승 동전 (예정)
+  - `coin_*` - 환승 동전
 - **보안 규칙**: 현재 임시 개방 (allow read, write: if true)
   - ⚠️ 출시 전 반드시 Firebase Anonymous Auth 도입 후 잠가야 함
   - userId 단위로 본인 데이터만 read/write 허용 규칙으로 변경
@@ -142,6 +142,70 @@
 - ✅ vite build 성공 (90 modules, 1.60s)
 - ✅ 브라우저 동작 확인 (빈 상태 → 첫 기록 → 자동완성 → 사람별 집계 → PersonDetail 흐름)
 
+## 4번 앱 "오늘의 환승 동전" 완료 사항
+### 디렉토리: ~/yumi-toss/coin-saver
+
+### 구현된 화면 (1개)
+- **Home**: 골드 저금통 카드(🐷 + 누적 동전 + 마일스톤 멘트) + 결제 입력(실시간 미리보기) + 최근 동전 리스트(최대 20)
+
+### 주요 파일
+- src/types.ts - CoinUser, CoinTransaction
+- src/hooks/useTossUser.ts - 1·2·3번 동일 패턴 (dev_coin_xxx prefix)
+- src/lib/firebase.ts - 1번 앱과 100% 동일
+- src/lib/coinLogic.ts - calculateCoin (1000원 단위 올림 차액) + 음수/NaN/0 방어 + formatKRW
+- src/lib/coinDb.ts - ensureUser, addTransaction (runTransaction으로 totalSaved 원자적 누적), getTotalSaved, getTransactions
+- src/lib/coinCopy.ts - 5단계 마일스톤 카피(0/1k/10k/50k/100k+) + 즉시 멘트 + 미리보기 멘트
+- src/screens/Home.tsx
+- src/App.tsx - 단일 화면(useTossUser → ensureUser → Home)
+- granite.config.ts - brand.primaryColor `#F59E0B` (amber-500, 골드)
+
+### Firestore 컬렉션 (prefix: `coin_`)
+- `coin_users/{userId}`: { userId, totalSaved, createdAt } — 누적 동전 캐시 (트랜잭션으로 원자적 갱신)
+- `coin_transactions/{txId}`: { userId, paymentAmount, savedCoin, roundedTo, memo, createdAt } — 클라이언트 정렬
+
+### 환경변수 (.env.local)
+- mycloud-5ce96 동일 키 사용. 현재는 APP_ID도 life-wage와 공유 중
+- ⚠️ 출시 전 Firebase 콘솔에서 coin-saver 별도 웹앱 등록 후 APP_ID 갱신 필요
+
+### 차별화 포인트
+- 컬러: `#F59E0B` 골드 (1번 핑크 / 2번 다크 / 3번 그린과 시각적 구분)
+- 톤: 밝고 경쾌함, 동전·돼지저금통 모티프 (1번 도발 / 2번 블랙코미디 / 3번 따뜻함과 대비)
+- 기술: 4개 앱 중 유일하게 누적 카운터(`totalSaved`) 보유 → `runTransaction`으로 race condition 방지
+
+### V2 메모
+- 앱인토스 SDK 결제내역 권한 답변 대기 중
+- 권한 받으면: 자동 동전 떨어뜨리기 (수동 입력 → 결제 후크 자동) + 푸시 알림 가능
+- 답변 결과에 따라 V2 스코프 결정
+
+### 검증 완료
+- ✅ tsc --noEmit 0 errors
+- ✅ vite build 성공 (87 modules, 1.74s)
+- ✅ 브라우저 동작 확인 (입력 → 미리보기 → 동전 떨어뜨리기 → 누적 갱신 → 리스트 반영)
+
+## 🎉 V1 시리즈 완성 (2026-04-27)
+4개 앱 모두 V1 완성. 각각 독립 디렉토리·컬러·톤·Firestore prefix로 구성됐고, 1·2·3·4번 모두 tsc + vite build 통과 후 브라우저에서 골든패스 확인 완료.
+
+### 4개 앱 요약
+| # | 앱 | 디렉토리 | 화면 | 컬러 | 톤 | Firestore prefix |
+|---|---|---|---|---|---|---|
+| 1 | 내 인생 시급 | life-wage | 2 (Onboarding/Home) | `#F06292` 핑크 | 도발 | `wage_*` |
+| 2 | 내 카드 장례식 | card-funeral | 5 (Home/AddCard/CardDetail/Funeral/Memorial) | `#1F2937` 다크 | 블랙코미디 | `card_*` |
+| 3 | 경조사 가계부 | gyeongjo-book | 3 (Home/AddRecord/PersonDetail) | `#059669` 그린 | 따뜻함 | `gyeongjo_*` |
+| 4 | 오늘의 환승 동전 | coin-saver | 1 (Home) | `#F59E0B` 골드 | 경쾌함 | `coin_*` |
+
+### 다음 페이즈 (출시 준비)
+1. **사업자 등록**: 홈택스 신청 진행
+2. **Firebase Auth Anonymous 도입 + 보안 규칙 잠그기**: 4개 앱 공통
+3. **각 앱 콘솔 입점**: Firebase 콘솔에서 별도 웹앱 등록(2·3·4번) + 앱인토스 콘솔 등록 + API 키 발급
+4. **토스 샌드박스 실기기 테스트**
+5. **출시 검수 신청** (영업일 7일 소요)
+
+### V2 검토 항목 (앱별)
+- **1번(시급)**: 토스 SDK 결제내역 자동 연동 → 수동 입력 제거. 시급 자동 갱신(연봉 변동 시).
+- **2번(카드)**: 토스 카드 사용 데이터 자동 동기화 → "마지막 사용일" 자동 갱신. 카드사 해지 정보 정기 업데이트 자동화.
+- **3번(경조사)**: 캘린더 연동(이벤트 알림). 봉투 인쇄/이미지 출력. 통계 그래프.
+- **4번(동전)**: 토스 SDK 결제내역 자동 연동 → 결제 후크로 자동 동전 떨어뜨리기 + 푸시 알림 (권한 답변 대기 중).
+
 ## 진행 중인 외부 작업
 - ⏳ **사업자 등록**: 홈택스 신청 예정 (정보통신업/응용소프트웨어 개발 및 공급업, 간이과세자)
 - ⏳ **앱인토스 SDK 결제내역 API 권한 문의**: 커뮤니티 글 작성됨, 운영진 보류 검토 대기
@@ -164,3 +228,4 @@
 - [ ] (2번 앱) Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신
 - [ ] (3번 앱) Firebase 콘솔에서 gyeongjo-book 별도 웹앱 등록 후 APP_ID 갱신
 - [ ] (3번 앱) Home 검색 영역 일반 `<input>` 처리 부분 출시 전 TDS `SearchField` 컴포넌트로 재시도
+- [ ] (4번 앱) Firebase 콘솔에서 coin-saver 별도 웹앱 등록 후 APP_ID 갱신
