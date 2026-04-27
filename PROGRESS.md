@@ -9,7 +9,7 @@
 
 ## 4개 앱 로드맵
 1. ✅ **내 인생 시급** (life-wage) - V1 완성 (수동 입력 기반)
-2. ⏳ **내 카드 장례식** (card-funeral) - 다음 차례
+2. ✅ **내 카드 장례식** (card-funeral) - V1 완성
 3. ⏳ **경조사 가계부** (gyeongjo-book) - 대기
 4. ⏳ **오늘의 환승 동전** (coin-saver) - 대기 (V1만 출시, V2는 SDK 답변 후 결정)
 
@@ -66,6 +66,41 @@
 - ✅ 브라우저 동작 확인 (Onboarding → Home → 기록 추가 → Firestore 저장)
 - ✅ 카피 9구간 자연스러움 검토 완료
 
+## 2번 앱 "내 카드 장례식" 완료 사항
+### 디렉토리: ~/yumi-toss/card-funeral
+
+### 구현된 화면 (5개)
+- **Home**: 카드 리스트 + 위중·사망 카드 통계 + 추모관 진입
+- **AddCard**: 카드 별명 / 카드사(SegmentedControl 9종) / 연회비 / 마지막 사용일 등록
+- **CardDetail**: 카드 상세 + 카드사별 해지 가이드 + 사용일 갱신 / 장례식 진입 (Double CTA)
+- **Funeral**: 다크 톤 추모 화면 + 추모사(랜덤) + 누적 연회비 손해 표시
+- **Memorial**: 추모관 — 떠나보낸 카드 리스트 + 누적 손해 합계
+
+### 주요 파일
+- src/types.ts - CardIssuer, CardStatus, Card, Funeral
+- src/hooks/useTossUser.ts - 1번 앱 동일 패턴 (dev_card_xxx prefix)
+- src/lib/firebase.ts - 1번 앱과 동일
+- src/lib/cardStatus.ts - 1·3·6개월 컷오프 4단계 상태 (active/dormant/critical/dead)
+- src/lib/cardDb.ts - addCard, getCards, updateCardLastUsed, deleteCard, holdFuneral, getFunerals
+- src/lib/cardIssuerData.ts - 8개 카드사 해지 가이드 (전화번호/앱 경로/주의사항)
+- src/lib/funeralCopy.ts - 추모사 8개 변형 + 상태별 코멘트 3개씩
+- src/screens/Home.tsx, AddCard.tsx, CardDetail.tsx, Funeral.tsx, Memorial.tsx
+- src/App.tsx - useState 기반 5개 화면 라우팅
+- granite.config.ts - brand.primaryColor `#1F2937` (다크 톤, 1번 앱과 시각적 구분)
+
+### Firestore 컬렉션 (prefix: `card_`)
+- `card_cards/{cardId}`: { userId, cardName, issuer, annualFee, lastUsedDate, registeredAt } — status는 lastUsedDate 기준으로 클라이언트에서 동적 계산
+- `card_funerals/{funeralId}`: { userId, cardName, issuer, totalAnnualFee, funeralDate }
+
+### 환경변수 (.env.local)
+- mycloud-5ce96 동일 키 사용. 현재는 APP_ID도 life-wage와 공유 중
+- ⚠️ 출시 전 Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신 필요
+
+### 검증 완료
+- ✅ tsc --noEmit 0 errors
+- ✅ vite build 성공 (91 modules, 1.59s)
+- ✅ 브라우저 동작 확인 (Home → AddCard → CardDetail → Funeral → Memorial 전체 흐름)
+
 ## 진행 중인 외부 작업
 - ⏳ **사업자 등록**: 홈택스 신청 예정 (정보통신업/응용소프트웨어 개발 및 공급업, 간이과세자)
 - ⏳ **앱인토스 SDK 결제내역 API 권한 문의**: 커뮤니티 글 작성됨, 운영진 보류 검토 대기
@@ -84,3 +119,5 @@
 - [ ] 콘솔에서 각 앱 등록 + API 키 발급
 - [ ] 토스 샌드박스 실기기 테스트
 - [ ] 출시 검수 신청 (영업일 7일 소요)
+- [ ] (2번 앱) 카드사 해지 정보(전화번호/앱 경로) 출시 전 각 카드사 공식 사이트에서 최종 검증
+- [ ] (2번 앱) Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신
