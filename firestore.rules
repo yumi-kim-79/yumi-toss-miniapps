@@ -1,10 +1,40 @@
+// ============================================================
+// mycloud-5ce96 통합 보안 규칙
+// 작성: 2026-04-28
+// 영역: Aitory / FitMeal AI / MyCloud / 4개 미니앱
+//
+// 주요 변경 (이전 통합본 대비):
+// - FitMeal: Session #32-Fix4 운영 규칙 그대로 반영
+//   - fitmeal_users read → 모든 인증 사용자 (공개 프로필 지원)
+//   - fitmeal_user_blocks → get/list 분리
+// - Aitory: 운영 규칙 미확인이라 임시로 인증 사용자 read/write 허용
+//   (운영 규칙 확인되면 정밀화 예정)
+// ============================================================
+
+// ============================================================
+// mycloud-5ce96 통합 보안 규칙 v2
+// 콘솔 게시일: 2026-04-28
+// 게시 후 검증: life-wage / Aitory / FitMeal AI / MyCloud 4개 영역 정상 동작
+//
+// 주요 변경 (v1 통합본 대비):
+// - FitMeal AI: Session #32-Fix4 운영 규칙 정확히 반영
+//   - fitmeal_users read → 인증 사용자 전체 (공개 프로필 지원)
+//   - fitmeal_user_blocks → get/list 분리 (블록 검사 단일 조회 허용)
+// - Aitory: 운영 규칙 미확인이라 임시로 인증 사용자 read/write 허용
+//   TODO: Aitory 운영 규칙 확인 후 정밀화
+//
+// 별도 이슈 (이 파일과 무관):
+// - FitMeal AI Storage /capture 권한 에러 발견 → FitMeal 자체 이슈로 별도 처리
+// - Storage /media 경로 보안 강화 검토 필요 (인증 사용자 누구나 read/write)
+// ============================================================
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // ==========================================
-    // 본인 식별 헬퍼 함수 (MyCloud 전용)
+    // 본인 식별 헬퍼 (MyCloud 전용)
     // ==========================================
     function isOwner() {
       return request.auth != null
@@ -12,73 +42,75 @@ service cloud.firestore {
     }
 
     // ==========================================
-    // [Aitory] - 사용자 본인 데이터만 접근
+    // [Aitory] 임시 규칙 — 운영 규칙 미확인
+    // 모든 인증 사용자가 read/write 가능
+    // TODO: Aitory 실제 규칙 확인 후 정밀화
     // ==========================================
-    match /aitory_users/{uid} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == uid;
+    match /aitory_users/{docId} {
+      allow read, write: if request.auth != null;
     }
     match /aitory_indexed_urls/{docId} {
-      allow read: if request.auth != null;
-      allow write: if false;  // 서버/관리자만 (Cloud Function 또는 콘솔)
+      allow read, write: if request.auth != null;
     }
     match /aitory_published_keywords/{docId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-                   && resource.data.uid == request.auth.uid;
+      allow read, write: if request.auth != null;
     }
     match /aitory_rss_posted/{docId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-                   && resource.data.uid == request.auth.uid;
+      allow read, write: if request.auth != null;
     }
     match /aitory_seo_updated/{docId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-                   && resource.data.uid == request.auth.uid;
+      allow read, write: if request.auth != null;
     }
     match /aitory_usage_logs/{docId} {
-      allow read: if request.auth != null
-                  && resource.data.uid == request.auth.uid;
-      allow write: if false;  // Cloud Function only
+      allow read, write: if request.auth != null;
     }
 
     // ==========================================
-    // [FitMeal AI] - 기존 .rules 파일 그대로
+    // [FitMeal AI] - Session #32-Fix4 운영 규칙
     // ==========================================
+
+    // FitMeal 사용자 — 공개 프로필 지원 (read 인증 사용자 전체)
     match /fitmeal_users/{uid} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == uid;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid;
 
       match /meals/{mealId} {
         allow read, write: if request.auth != null
-                           && request.auth.uid == uid;
+                            && request.auth.uid == uid;
       }
       match /exercise_recommendations/{recId} {
         allow read, write: if request.auth != null
-                           && request.auth.uid == uid;
+                            && request.auth.uid == uid;
       }
       match /exercise_logs/{logId} {
         allow read, write: if request.auth != null
-                           && request.auth.uid == uid;
+                            && request.auth.uid == uid;
       }
       match /weightLogs/{date} {
         allow read, write: if request.auth != null
-                           && request.auth.uid == uid;
+                            && request.auth.uid == uid;
       }
     }
+
+    // 운동 카탈로그 (read only)
     match /fitmeal_exercises_catalog/{docId} {
       allow read: if request.auth != null;
       allow write: if false;
     }
+
+    // 사용량 (Cloud Function만 write)
     match /fitmeal_usage/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false;
+
       match /monthly/{period} {
         allow read: if request.auth != null && request.auth.uid == uid;
         allow write: if false;
       }
     }
+
+    // 구독/결제 (Cloud Function만 write)
     match /fitmeal_subscriptions/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow write: if false;
@@ -88,9 +120,13 @@ service cloud.firestore {
                   && resource.data.uid == request.auth.uid;
       allow write: if false;
     }
+
+    // 일별 비용 (관리자 전용)
     match /fitmeal_daily_costs/{date} {
       allow read, write: if false;
     }
+
+    // 커뮤니티 — 게시글
     match /fitmeal_posts/{postId} {
       allow read: if request.auth != null
                   && (resource.data.authorUid == request.auth.uid
@@ -114,15 +150,22 @@ service cloud.firestore {
                   && resource.data.reporterUid == request.auth.uid;
       allow write: if false;
     }
+
+    // 차단 — get/list 분리 (Session #32-Fix4)
     match /fitmeal_user_blocks/{blockId} {
-      allow read: if request.auth != null
+      allow get: if request.auth != null;
+      allow list: if request.auth != null
                   && resource.data.blockerUid == request.auth.uid;
       allow write: if false;
     }
+
+    // 해시태그 (Cloud Function만 write)
     match /fitmeal_hashtags/{tag} {
       allow read: if request.auth != null;
       allow write: if false;
     }
+
+    // 댓글 (Cloud Function만 write)
     match /fitmeal_comments/{commentId} {
       allow read: if request.auth != null;
       allow write: if false;
@@ -134,7 +177,7 @@ service cloud.firestore {
     }
 
     // ==========================================
-    // [MyCloud] - 본인만 접근 (개인용 앱)
+    // [MyCloud] 본인만 접근 (개인용 앱)
     // ==========================================
     match /albums/{docId} {
       allow read, write: if isOwner();
@@ -143,7 +186,8 @@ service cloud.firestore {
       allow read, write: if isOwner();
     }
     match /users/{uid} {
-      allow read, write: if isOwner() || (request.auth != null && request.auth.uid == uid);
+      allow read, write: if isOwner()
+                         || (request.auth != null && request.auth.uid == uid);
     }
 
     // ==========================================

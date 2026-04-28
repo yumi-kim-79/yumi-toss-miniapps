@@ -240,18 +240,50 @@
 - ✅ **3번 gyeongjo-book**: tsc + vite build 통과 (브라우저 재검증 대기)
 - ✅ **4번 coin-saver**: tsc + vite build 통과 (브라우저 재검증 대기)
 
+### 통합 보안 규칙 v2 콘솔 게시 (2026-04-28)
+- ✅ Firebase 콘솔에 v2 게시 완료
+- ✅ 4개 영역 동작 검증 통과 — life-wage / Aitory / FitMeal AI / MyCloud
+- ✅ `~/yumi-toss/firestore.rules` 동기화 완료 (콘솔 게시본과 일치)
+- 주요 변경 (v1 → v2):
+  - FitMeal AI: Session #32-Fix4 운영 규칙 정확히 반영
+    - `fitmeal_users` read → 인증 사용자 전체 (공개 프로필 지원)
+    - `fitmeal_user_blocks` → get/list 분리 (블록 검사 단일 조회 허용)
+  - Aitory: 운영 규칙 미확인이라 임시로 인증 사용자 read/write 허용 → 정밀화 TODO
+
+## 메모 / 별도 이슈
+- **FitMeal AI Storage `/capture` 권한 에러** (2026-04-28 발견)
+  - 에러: `[firebase_storage/unauthorized]` / 사용자: `kakao:4860766164`
+  - 원인 추정: 카카오 사용자 권한 또는 잘못된 경로 업로드
+  - **이 파일(Firestore rules)과 무관** — Storage 규칙은 별도 시스템
+  - FitMeal 자체 이슈로 별도 처리 예정
+- **Storage `/media` 경로 보안 강화 검토 필요**
+  - 현재: `allow read, write: if request.auth != null` (모든 인증 사용자)
+  - 권장: 본인 폴더만 read/write 허용 패턴
+  - FitMeal/MyCloud 영향 — 별도 작업
+- **Aitory 운영 규칙 정밀화 필요**
+  - 현재: 임시로 인증 사용자 read/write 허용
+  - TODO: Aitory 레포의 정확한 보안 규칙 확인 후 통합 규칙 v3 작성
+
 ## 진행 중인 외부 작업
 - ✅ **사업자 등록 완료** (2026-04-28): 일반과세자, 업종 = 응용 소프트웨어 개발 + 광고 대행업
 - ⏳ **앱인토스 SDK 결제내역 API 권한 문의**: 커뮤니티 글 작성됨, 운영진 보류 검토 대기
   - 답변 결과에 따라 4번 앱(환승 동전)의 V2 구현 여부 결정
 
-## 다음 작업 (2026-04-28 기준)
-1. **3개 앱 브라우저 검증** — card-funeral, gyeongjo-book, coin-saver 신 useTossUser 패턴 동작 확인 (Firebase UID 정상 발급 + 매핑 문서 생성 + 기존 기능 회귀 없음)
-2. **보안 규칙 콘솔 게시** — `~/yumi-toss/firestore.rules`를 Firebase 콘솔 Phase B로 수동 게시
-3. **4개 앱 재검증** — 보안 규칙 게시 후 4개 앱 골든패스 모두 다시 한 번 (read/write가 본인 UID 단위로 잘 통과하는지)
-4. **카드사 정보 검증** — 2번 앱 카드사 해지 가이드(전화번호/앱 경로) 8개 카드사 공식 사이트에서 최종 확인
-5. **약관 작성** — 서비스 이용약관 + 개인정보 처리방침 (4개 앱 공통 또는 앱별)
-6. **콘솔 입점** — Firebase 콘솔 별도 웹앱 등록(2·3·4번) + 앱인토스 콘솔 4개 앱 등록 + API 키 발급 + 출시 검수 신청
+## 다음 작업 (2026-04-28 갱신)
+1. ~~보안 규칙 콘솔 게시~~ ✅ 완료 (v2 게시 + 4개 영역 검증)
+2. **4개 앱 재검증** — 통합 규칙 적용 후 card-funeral / gyeongjo-book / coin-saver / life-wage 모두 다시
+   - 각 앱 vite로 띄워서 데이터 1건씩 추가
+   - Firestore 콘솔에서 데이터 정상 저장 확인
+   - DevTools에서 `permission-denied` 에러 없는지 확인
+3. **카드사 정보 검증** (1시간) — 2번 앱 8개 카드사 전화번호 + 앱 경로 공식 사이트 확인 → `cardIssuerData.ts` 갱신
+4. **약관 작성** (2~3시간) — 4개 앱 개인정보처리방침 + 이용약관 (총 8벌) → GitHub Pages 호스팅
+5. **앱 아이콘 + 스크린샷** (반나절~1일)
+6. **앱 소개 문구** (1시간) — 짧은/긴 버전
+7. **앱인토스 콘솔 입점 + 출시 검수** (반나절 + 영업일 7일)
+   - 사업자 정보 콘솔 등록
+   - 4개 앱 등록 + Firebase 별도 웹앱 4개 등록 + APP_ID 갱신
+   - Node 24 업그레이드 (granite build/deploy 위해)
+   - 검수 신청
 
 ## 다음 세션 시작 시
 1. 이 PROGRESS.md 먼저 읽기
@@ -272,3 +304,5 @@
 - [ ] (3번 앱) Firebase 콘솔에서 gyeongjo-book 별도 웹앱 등록 후 APP_ID 갱신
 - [ ] (3번 앱) Home 검색 영역 일반 `<input>` 처리 부분 출시 전 TDS `SearchField` 컴포넌트로 재시도
 - [ ] (4번 앱) Firebase 콘솔에서 coin-saver 별도 웹앱 등록 후 APP_ID 갱신
+- [ ] Storage `/media` 경로 보안 강화 검토 (FitMeal/MyCloud 영향)
+- [ ] Aitory 정확한 운영 규칙 확인 후 firestore.rules v3 갱신
