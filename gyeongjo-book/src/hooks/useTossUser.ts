@@ -1,14 +1,43 @@
 import { useEffect, useState } from "react";
 import { getAnonymousKey } from "@apps-in-toss/web-framework";
+import { signInAnonymously } from "firebase/auth";
+import { Timestamp, doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
 
-const DEV_USER_KEY = "gyeongjo_dev_user_id";
+const DEV_TOSS_KEY_STORAGE = "gyeongjo_dev_toss_key";
+const MAPPING_COLLECTION = "gyeongjo_user_mapping";
 
-function getOrCreateDevUserId(): string {
-  const existing = localStorage.getItem(DEV_USER_KEY);
+function getOrCreateDevTossKey(): string {
+  const existing = localStorage.getItem(DEV_TOSS_KEY_STORAGE);
   if (existing) return existing;
-  const newId = `dev_gyeongjo_${Math.random().toString(36).slice(2, 10)}`;
-  localStorage.setItem(DEV_USER_KEY, newId);
-  return newId;
+  const newKey = `dev_${Math.random().toString(36).slice(2, 12)}`;
+  localStorage.setItem(DEV_TOSS_KEY_STORAGE, newKey);
+  return newKey;
+}
+
+async function resolveTossAnonymousKey(): Promise<string> {
+  try {
+    const result = await getAnonymousKey();
+    if (result && result !== "ERROR" && result.type === "HASH") {
+      return result.hash;
+    }
+  } catch {
+    // 토스 SDK 미가용 환경 (브라우저 dev 등): fallback으로 진행
+  }
+  return getOrCreateDevTossKey();
+}
+
+async function ensureUserMapping(
+  firebaseUid: string,
+  tossAnonymousKey: string,
+): Promise<void> {
+  const ref = doc(db, MAPPING_COLLECTION, firebaseUid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) return;
+  await setDoc(ref, {
+    tossAnonymousKey,
+    createdAt: Timestamp.now(),
+  });
 }
 
 export function useTossUser() {
@@ -20,15 +49,15 @@ export function useTossUser() {
 
     (async () => {
       try {
-        const result = await getAnonymousKey();
+        const tossKey = await resolveTossAnonymousKey();
+        const cred = await signInAnonymously(auth);
         if (cancelled) return;
-        if (result && result !== "ERROR" && result.type === "HASH") {
-          setUserId(result.hash);
-        } else {
-          setUserId(getOrCreateDevUserId());
-        }
-      } catch {
-        if (!cancelled) setUserId(getOrCreateDevUserId());
+        const firebaseUid = cred.user.uid;
+        await ensureUserMapping(firebaseUid, tossKey);
+        if (cancelled) return;
+        setUserId(firebaseUid);
+      } catch (err) {
+        console.error("[useTossUser] Firebase Anonymous Auth 실패", err);
       } finally {
         if (!cancelled) setLoading(false);
       }

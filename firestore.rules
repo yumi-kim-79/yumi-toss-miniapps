@@ -1,0 +1,236 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==========================================
+    // 본인 식별 헬퍼 함수 (MyCloud 전용)
+    // ==========================================
+    function isOwner() {
+      return request.auth != null
+             && request.auth.uid == '3DDPhW29TxesXPJXWo8Jd22YpxR2';
+    }
+
+    // ==========================================
+    // [Aitory] - 사용자 본인 데이터만 접근
+    // ==========================================
+    match /aitory_users/{uid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+    match /aitory_indexed_urls/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;  // 서버/관리자만 (Cloud Function 또는 콘솔)
+    }
+    match /aitory_published_keywords/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && resource.data.uid == request.auth.uid;
+    }
+    match /aitory_rss_posted/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && resource.data.uid == request.auth.uid;
+    }
+    match /aitory_seo_updated/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && resource.data.uid == request.auth.uid;
+    }
+    match /aitory_usage_logs/{docId} {
+      allow read: if request.auth != null
+                  && resource.data.uid == request.auth.uid;
+      allow write: if false;  // Cloud Function only
+    }
+
+    // ==========================================
+    // [FitMeal AI] - 기존 .rules 파일 그대로
+    // ==========================================
+    match /fitmeal_users/{uid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+
+      match /meals/{mealId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == uid;
+      }
+      match /exercise_recommendations/{recId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == uid;
+      }
+      match /exercise_logs/{logId} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == uid;
+      }
+      match /weightLogs/{date} {
+        allow read, write: if request.auth != null
+                           && request.auth.uid == uid;
+      }
+    }
+    match /fitmeal_exercises_catalog/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /fitmeal_usage/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+      match /monthly/{period} {
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow write: if false;
+      }
+    }
+    match /fitmeal_subscriptions/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+    match /fitmeal_credit_purchases/{purchaseId} {
+      allow read: if request.auth != null
+                  && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+    match /fitmeal_daily_costs/{date} {
+      allow read, write: if false;
+    }
+    match /fitmeal_posts/{postId} {
+      allow read: if request.auth != null
+                  && (resource.data.authorUid == request.auth.uid
+                      || (resource.data.visibility == 'public'
+                          && resource.data.isHidden == false
+                          && resource.data.moderationStatus == 'approved'));
+      allow update: if request.auth != null
+                    && resource.data.isHidden == false
+                    && request.resource.data.diff(resource.data)
+                       .affectedKeys().hasOnly(['viewCount'])
+                    && request.resource.data.viewCount == resource.data.viewCount + 1;
+      allow create, delete: if false;
+    }
+    match /fitmeal_post_likes/{likeId} {
+      allow read: if request.auth != null
+                  && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+    match /fitmeal_reports/{reportId} {
+      allow read: if request.auth != null
+                  && resource.data.reporterUid == request.auth.uid;
+      allow write: if false;
+    }
+    match /fitmeal_user_blocks/{blockId} {
+      allow read: if request.auth != null
+                  && resource.data.blockerUid == request.auth.uid;
+      allow write: if false;
+    }
+    match /fitmeal_hashtags/{tag} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /fitmeal_comments/{commentId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /fitmeal_comment_likes/{likeId} {
+      allow read: if request.auth != null
+                  && resource.data.uid == request.auth.uid;
+      allow write: if false;
+    }
+
+    // ==========================================
+    // [MyCloud] - 본인만 접근 (개인용 앱)
+    // ==========================================
+    match /albums/{docId} {
+      allow read, write: if isOwner();
+    }
+    match /media/{docId} {
+      allow read, write: if isOwner();
+    }
+    match /users/{uid} {
+      allow read, write: if isOwner() || (request.auth != null && request.auth.uid == uid);
+    }
+
+    // ==========================================
+    // [1번 인생 시급] wage_*
+    // ==========================================
+    match /wage_users/{uid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+    match /wage_records/{recordId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.userId == request.auth.uid;
+    }
+    match /wage_user_mapping/{firebaseUid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == firebaseUid;
+    }
+
+    // ==========================================
+    // [2번 카드 장례식] card_*
+    // ==========================================
+    match /card_cards/{cardId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.userId == request.auth.uid;
+    }
+    match /card_funerals/{funeralId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.userId == request.auth.uid;
+    }
+    match /card_user_mapping/{firebaseUid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == firebaseUid;
+    }
+
+    // ==========================================
+    // [3번 경조사 가계부] gyeongjo_*
+    // ==========================================
+    match /gyeongjo_records/{recordId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.userId == request.auth.uid;
+    }
+    match /gyeongjo_user_mapping/{firebaseUid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == firebaseUid;
+    }
+
+    // ==========================================
+    // [4번 환승 동전] coin_*
+    // ==========================================
+    match /coin_users/{uid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid;
+    }
+    match /coin_transactions/{txId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.userId == request.auth.uid;
+    }
+    match /coin_user_mapping/{firebaseUid} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == firebaseUid;
+    }
+
+    // ==========================================
+    // 기본 거부 (반드시 마지막)
+    // ==========================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

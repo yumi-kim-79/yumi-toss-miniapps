@@ -30,13 +30,23 @@
   - `card_*` - 내 카드 장례식 (예정)
   - `gyeongjo_*` - 경조사 가계부 (예정)
   - `coin_*` - 환승 동전
-- **보안 규칙**: 현재 임시 개방 (allow read, write: if true)
-  - ⚠️ 출시 전 반드시 Firebase Anonymous Auth 도입 후 잠가야 함
-  - userId 단위로 본인 데이터만 read/write 허용 규칙으로 변경
+- **보안 규칙**: 통합 관리 (`~/yumi-toss/firestore.rules`)
+  - mycloud-5ce96 프로젝트의 모든 영역(Aitory/FitMeal/MyCloud/4개 미니앱) 통합 규칙
+  - 본인 식별: `request.auth.uid == userId` (각 앱) / `isOwner()` (MyCloud 전용 UID)
+  - 매핑 컬렉션 4개 (wage/card/gyeongjo/coin _user_mapping) 포함
+  - 기본 거부(`match /{document=**}`)로 미식별 컬렉션 차단
+  - 배포: 콘솔 수동 게시 (Phase B) → 안정화 후 `firebase deploy --only firestore:rules` 이관
+
+### 보안 규칙 메모
+- **기본 거부 규칙은 재귀 와일드카드**라 명시되지 않은 모든 서브컬렉션이 차단됨. 향후 서브컬렉션(예: `card_cards/{cardId}/history/*`) 추가 시 firestore.rules에 명시적 `match` 규칙 추가 필요.
+- **매핑 컬렉션은 본인만 read/write**. Firebase Anonymous Auth는 디바이스 단위로 동일 UID가 영속되므로 토스 anonymousKey 역검색 불필요. 매핑 문서는 감사/디버깅 목적.
 
 ## 사용자 식별 전략
-- 토스 SDK의 `getAnonymousKey()` 사용 (로그인 없는 익명 키)
-- 브라우저 환경(개발용)에서는 `dev_xxxxxxxx` 형식 localStorage fallback
+- **Firebase Anonymous Auth**가 1차 식별자 (`auth.currentUser.uid` → `userId`)
+- 토스 SDK `getAnonymousKey()`는 매핑용으로만 사용 (디바이스 식별 보조)
+- 첫 진입 시 `{앱}_user_mapping/{firebaseUid}` 문서에 토스 키 기록
+- 브라우저 환경(개발용)에서는 토스 SDK 실패 시 `dev_xxxxxxxx` localStorage fallback 키를 매핑 문서에 기록
+- 보안 규칙은 Firebase UID(=`userId`) 기준으로 본인 데이터만 허용
 - src/hooks/useTossUser.ts 참조
 
 ## 1번 앱 "내 인생 시급" 완료 사항
@@ -206,10 +216,42 @@
 - **3번(경조사)**: 캘린더 연동(이벤트 알림). 봉투 인쇄/이미지 출력. 통계 그래프.
 - **4번(동전)**: 토스 SDK 결제내역 자동 연동 → 결제 후크로 자동 동전 떨어뜨리기 + 푸시 알림 (권한 답변 대기 중).
 
+## 보안 인증 적용 현황 (2026-04-28)
+
+### Firebase Anonymous Auth 4개 앱 적용 완료
+4개 앱 모두 `useTossUser.ts`를 신 패턴으로 통일:
+- `signInAnonymously(auth)`로 Firebase UID 발급 (이게 이제 `userId`)
+- 토스 SDK `getAnonymousKey()`는 매핑 보조용 (`{앱}_user_mapping/{firebaseUid}` 문서에 기록)
+- 토스 SDK 미가용(브라우저 dev) 시 `dev_xxxxxxxx` localStorage fallback 키를 매핑에 기록
+- `firebase.ts`에 `getAuth(app)` 추가 (`auth` 익스포트)
+
+### 통합 firestore.rules
+- 위치: `~/yumi-toss/firestore.rules` (`firebase.json`, `firestore.indexes.json` 동반)
+- mycloud-5ce96 프로젝트의 모든 영역(Aitory/FitMeal/MyCloud/4개 미니앱) 통합 규칙
+- 4개 앱: `request.auth.uid == userId` (본인 데이터만 read/write)
+- 매핑 컬렉션 4개(`wage_user_mapping`, `card_user_mapping`, `gyeongjo_user_mapping`, `coin_user_mapping`) 본인만 read/write
+- MyCloud 전용 UID 헬퍼 `isOwner()`
+- 기본 거부(`match /{document=**}`)로 미식별 컬렉션 차단
+- 배포: 콘솔 수동 게시(Phase B) → 안정화 후 `firebase deploy --only firestore:rules` 이관
+
+### 검증 진행 상황
+- ✅ **1번 life-wage**: 브라우저 검증 통과 (Firebase UID 매핑 정상)
+- ✅ **2번 card-funeral**: tsc + vite build 통과 (브라우저 재검증 대기)
+- ✅ **3번 gyeongjo-book**: tsc + vite build 통과 (브라우저 재검증 대기)
+- ✅ **4번 coin-saver**: tsc + vite build 통과 (브라우저 재검증 대기)
+
 ## 진행 중인 외부 작업
-- ⏳ **사업자 등록**: 홈택스 신청 예정 (정보통신업/응용소프트웨어 개발 및 공급업, 간이과세자)
+- ✅ **사업자 등록 완료** (2026-04-28): 일반과세자, 업종 = 응용 소프트웨어 개발 + 광고 대행업
 - ⏳ **앱인토스 SDK 결제내역 API 권한 문의**: 커뮤니티 글 작성됨, 운영진 보류 검토 대기
   - 답변 결과에 따라 4번 앱(환승 동전)의 V2 구현 여부 결정
+
+## 다음 작업 (2026-04-28 기준)
+1. **3개 앱 브라우저 검증** — card-funeral, gyeongjo-book, coin-saver 신 useTossUser 패턴 동작 확인 (Firebase UID 정상 발급 + 매핑 문서 생성 + 기존 기능 회귀 없음)
+2. **보안 규칙 콘솔 게시** — `~/yumi-toss/firestore.rules`를 Firebase 콘솔 Phase B로 수동 게시
+3. **4개 앱 재검증** — 보안 규칙 게시 후 4개 앱 골든패스 모두 다시 한 번 (read/write가 본인 UID 단위로 잘 통과하는지)
+4. **카드사 정보 검증** — 2번 앱 카드사 해지 가이드(전화번호/앱 경로) 8개 카드사 공식 사이트에서 최종 확인
+5. **약관 작성** — 서비스 이용약관 + 개인정보 처리방침 (4개 앱 공통 또는 앱별)
+6. **콘솔 입점** — Firebase 콘솔 별도 웹앱 등록(2·3·4번) + 앱인토스 콘솔 4개 앱 등록 + API 키 발급 + 출시 검수 신청
 
 ## 다음 세션 시작 시
 1. 이 PROGRESS.md 먼저 읽기
@@ -219,11 +261,12 @@
 
 ## 출시 전 체크리스트 (모든 앱 공통)
 - [ ] Node 24로 업그레이드 (granite build/deploy 위해)
-- [ ] Firebase Auth Anonymous 도입 + 보안 규칙 잠그기
-- [ ] 사업자 등록 완료
+- [x] Firebase Auth Anonymous 도입 + 보안 규칙 잠그기 (2026-04-28: firestore.rules 통합 작성, 4개 앱 useTossUser 신 패턴 적용 — 1번 브라우저 검증 통과, 2·3·4번 빌드 통과)
+- [x] 사업자 등록 완료 (2026-04-28: 일반과세자 / 응용 소프트웨어 개발 + 광고 대행업)
 - [ ] 콘솔에서 각 앱 등록 + API 키 발급
 - [ ] 토스 샌드박스 실기기 테스트
 - [ ] 출시 검수 신청 (영업일 7일 소요)
+- [ ] 서비스 이용약관 + 개인정보 처리방침 작성
 - [ ] (2번 앱) 카드사 해지 정보(전화번호/앱 경로) 출시 전 각 카드사 공식 사이트에서 최종 검증
 - [ ] (2번 앱) Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신
 - [ ] (3번 앱) Firebase 콘솔에서 gyeongjo-book 별도 웹앱 등록 후 APP_ID 갱신
