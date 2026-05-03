@@ -1,0 +1,51 @@
+# GitHub Pages Jekyll 설정
+# 목적: legal/ 디렉토리만 빌드 (약관 호스팅 전용)
+# 4개 앱 코드/문서는 GitHub에 보이지만 Jekyll 빌드 대상 아님
+
+# Jekyll이 처리할 디렉토리/파일
+include:
+  - legal
+
+# Jekyll이 무시할 디렉토리/파일
+exclude:
+  - card-funeral
+  - coin-saver
+  - life-wage
+  - gyeongjo-book
+  - node_modules
+  - "*.json"
+  - "*.config.js"
+  - "*.config.ts"
+  - PROGRESS.md
+  - README.md
+  - firestore.rules
+  - firebase.json
+  - firestore.indexes.json
+  - .gitignore
+  - .git
+
+# 마크다운 처리 설정
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# URL 형식 (확장자 없는 깔끔한 URL)
+permalink: pretty
+
+# 테마 (기본 GitHub Pages 테마)
+theme: jekyll-theme-cayman
+
+# 사이트 정보
+title: 앱 몬스터 미니앱 약관
+description: 앱 몬스터에서 운영하는 토스 미니앱 4종의 약관 모음
+author: 김유미
+
+# Plugins
+plugins:
+  - jekyll-relative-links
+
+# 상대 경로 링크 처리
+relative_links:
+  enabled: true
+  collections: true
