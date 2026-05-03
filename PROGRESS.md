@@ -263,6 +263,9 @@
 - **Aitory 운영 규칙 정밀화 필요**
   - 현재: 임시로 인증 사용자 read/write 허용
   - TODO: Aitory 레포의 정확한 보안 규칙 확인 후 통합 규칙 v3 작성
+- **GitHub Pages 인덱스 페이지 제목/설명 중복** (2026-05-04 발견)
+  - `_config.yml`의 `title`/`description`과 `legal/index.md` 본문 헤더가 양쪽에서 표시됨
+  - 검수 통과에는 영향 없음 — 출시 후 정리 예정
 
 ## 진행 중인 외부 작업
 - ✅ **사업자 등록 완료** (2026-04-28): 일반과세자, 업종 = 응용 소프트웨어 개발 + 광고 대행업
@@ -273,44 +276,44 @@
 - ✅ 통합 보안 규칙 v2 콘솔 게시 (2026-04-28)
 - ✅ Firebase Anonymous Auth 4개 앱 적용 (2026-04-28, 1번 브라우저 검증 / 2·3·4번 빌드만)
 - ✅ 사업자 등록 (2026-04-28: 일반과세자, 응용 SW 개발 + 광고 대행업)
-- ✅ 약관 8벌 작성 (2026-05-04, `legal/` 디렉토리)
+- ✅ 약관 8벌 작성 완료 (2026-05-04, `legal/` 디렉토리)
 - ✅ 약관 인덱스 페이지 (`legal/index.md`, 검수자 친화 랜딩)
-- ⏳ GitHub Pages 호스팅 (사용자 액션 대기 — 아래 가이드 참고)
-- ⏳ 약관 URL 8개 박제 (Pages 활성화 후)
+- ✅ **GitHub Pages 호스팅 검증 완료 (2026-05-04)** — `_config.yml`로 `legal/`만 빌드, jekyll-theme-cayman 적용, permalink: pretty 정상 동작
 
-### GitHub Pages 활성화 가이드 (사용자 직접 수행)
-1. https://github.com/yumi-kim-79/yumi-toss-miniapps/settings/pages 접속
-2. **Source**: `Deploy from a branch`
-3. **Branch**: `main`
-4. **Folder**: `/ (root)` 권장 (`/legal`로 잡으면 인덱스가 사이트 루트가 됨)
-5. **Save** → 1~2분 대기 → URL 활성화
+### 약관 URL 박제 (2026-05-04 검증 완료)
 
-활성화 후 예상 URL (root 선택 기준):
-- 인덱스: `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/`
-- 약관 8개:
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-privacy`
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-terms`
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-privacy`
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-terms`
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-privacy`
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-terms`
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-privacy`
-  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-terms`
+랜딩 페이지: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/
 
-> 활성화 후 위 URL 8개를 한 번씩 열어보고 Jekyll 렌더링이 정상이면 PROGRESS.md에 박제(✅).
-> 만약 확장자 없는 URL이 404면 끝에 `.html` 또는 `.md`를 붙여 재시도.
+**1. 인생 시급 (life-wage)**
+- 개인정보처리방침: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-privacy
+- 이용약관: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-terms
+
+**2. 카드 장례식 (card-funeral)**
+- 개인정보처리방침: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-privacy
+- 이용약관: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-terms
+
+**3. 경조사 가계부 (gyeongjo-book)**
+- 개인정보처리방침: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-privacy
+- 이용약관: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-terms
+
+**4. 환승 동전 (coin-saver)**
+- 개인정보처리방침: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-privacy
+- 이용약관: https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-terms
+
+> URL 형식: `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/{앱명}-{privacy|terms}` (확장자 없음)
+> 콘솔 등록 시 위 URL 그대로 사용.
 
 ## 다음 작업 (2026-05-04 갱신)
-1. ~~보안 규칙 콘솔 게시~~ ✅ 완료
-2. ~~약관 작성~~ ✅ 완료 (legal/ 8벌)
-3. **GitHub Pages 활성화** (사용자 액션, 5분) — 위 가이드대로
-4. **약관 URL 박제** (5분) — 활성화 직후 8개 URL 동작 확인 + PROGRESS.md에 고정
+1. ~~약관 작성~~ ✅ 완료 (legal/ 8벌)
+2. ~~GitHub Pages 활성화~~ ✅ 완료
+3. ~~약관 URL 검증~~ ✅ 완료 (8개 URL 박제됨)
+4. **카드사 정보 검증** ⭐ 다음 진행 — 2번 앱 `cardIssuerData.ts` 8개 카드사 전화번호/앱 경로 공식 사이트 최종 확인 (1시간)
 5. **4개 앱 재검증** (1시간) — v2 보안 규칙 + 신 Auth 패턴으로 골든패스 다시. DevTools에서 `permission-denied` 없는지.
-6. **카드사 정보 검증** (1시간) — 2번 앱 8개 카드사 전화번호/앱 경로 공식 사이트 확인 → `cardIssuerData.ts` 갱신
-7. **앱 아이콘 + 스크린샷** (반나절~1일)
-8. **앱 소개 문구** (1시간) — 짧은/긴 버전
-9. **Node 24 업그레이드** + **Firebase 콘솔 별도 웹앱 등록(2·3·4번)** + **앱인토스 콘솔 입점** (반나절)
-10. **출시 검수 신청** (영업일 7일)
+6. **앱 아이콘** (4개, 반나절)
+7. **스크린샷** (4개 × 5장, 반나절~1일)
+8. **앱 설명 문구** (짧은/긴 버전, 1시간)
+9. **Node 24 업그레이드** + **Firebase 콘솔 별도 웹앱 등록(2·3·4번)** (반나절)
+10. **앱인토스 콘솔 등록 + 출시 검수 신청** (영업일 7일)
 
 ## 다음 세션 시작 시
 1. 이 PROGRESS.md 먼저 읽기
@@ -325,7 +328,7 @@
 - [ ] 콘솔에서 각 앱 등록 + API 키 발급
 - [ ] 토스 샌드박스 실기기 테스트
 - [ ] 출시 검수 신청 (영업일 7일 소요)
-- [ ] 서비스 이용약관 + 개인정보 처리방침 작성
+- [x] 서비스 이용약관 + 개인정보 처리방침 작성 (2026-05-04: 8벌 + GitHub Pages 호스팅 완료)
 - [ ] (2번 앱) 카드사 해지 정보(전화번호/앱 경로) 출시 전 각 카드사 공식 사이트에서 최종 검증
 - [ ] (2번 앱) Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신
 - [ ] (3번 앱) Firebase 콘솔에서 gyeongjo-book 별도 웹앱 등록 후 APP_ID 갱신
