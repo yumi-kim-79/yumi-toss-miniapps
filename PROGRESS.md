@@ -269,21 +269,48 @@
 - ⏳ **앱인토스 SDK 결제내역 API 권한 문의**: 커뮤니티 글 작성됨, 운영진 보류 검토 대기
   - 답변 결과에 따라 4번 앱(환승 동전)의 V2 구현 여부 결정
 
-## 다음 작업 (2026-04-28 갱신)
-1. ~~보안 규칙 콘솔 게시~~ ✅ 완료 (v2 게시 + 4개 영역 검증)
-2. **4개 앱 재검증** — 통합 규칙 적용 후 card-funeral / gyeongjo-book / coin-saver / life-wage 모두 다시
-   - 각 앱 vite로 띄워서 데이터 1건씩 추가
-   - Firestore 콘솔에서 데이터 정상 저장 확인
-   - DevTools에서 `permission-denied` 에러 없는지 확인
-3. **카드사 정보 검증** (1시간) — 2번 앱 8개 카드사 전화번호 + 앱 경로 공식 사이트 확인 → `cardIssuerData.ts` 갱신
-4. **약관 작성** (2~3시간) — 4개 앱 개인정보처리방침 + 이용약관 (총 8벌) → GitHub Pages 호스팅
-5. **앱 아이콘 + 스크린샷** (반나절~1일)
-6. **앱 소개 문구** (1시간) — 짧은/긴 버전
-7. **앱인토스 콘솔 입점 + 출시 검수** (반나절 + 영업일 7일)
-   - 사업자 정보 콘솔 등록
-   - 4개 앱 등록 + Firebase 별도 웹앱 4개 등록 + APP_ID 갱신
-   - Node 24 업그레이드 (granite build/deploy 위해)
-   - 검수 신청
+## 출시 준비물 현황
+- ✅ 통합 보안 규칙 v2 콘솔 게시 (2026-04-28)
+- ✅ Firebase Anonymous Auth 4개 앱 적용 (2026-04-28, 1번 브라우저 검증 / 2·3·4번 빌드만)
+- ✅ 사업자 등록 (2026-04-28: 일반과세자, 응용 SW 개발 + 광고 대행업)
+- ✅ 약관 8벌 작성 (2026-05-04, `legal/` 디렉토리)
+- ✅ 약관 인덱스 페이지 (`legal/index.md`, 검수자 친화 랜딩)
+- ⏳ GitHub Pages 호스팅 (사용자 액션 대기 — 아래 가이드 참고)
+- ⏳ 약관 URL 8개 박제 (Pages 활성화 후)
+
+### GitHub Pages 활성화 가이드 (사용자 직접 수행)
+1. https://github.com/yumi-kim-79/yumi-toss-miniapps/settings/pages 접속
+2. **Source**: `Deploy from a branch`
+3. **Branch**: `main`
+4. **Folder**: `/ (root)` 권장 (`/legal`로 잡으면 인덱스가 사이트 루트가 됨)
+5. **Save** → 1~2분 대기 → URL 활성화
+
+활성화 후 예상 URL (root 선택 기준):
+- 인덱스: `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/`
+- 약관 8개:
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-privacy`
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-terms`
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-privacy`
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-terms`
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-privacy`
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-terms`
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-privacy`
+  - `https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-terms`
+
+> 활성화 후 위 URL 8개를 한 번씩 열어보고 Jekyll 렌더링이 정상이면 PROGRESS.md에 박제(✅).
+> 만약 확장자 없는 URL이 404면 끝에 `.html` 또는 `.md`를 붙여 재시도.
+
+## 다음 작업 (2026-05-04 갱신)
+1. ~~보안 규칙 콘솔 게시~~ ✅ 완료
+2. ~~약관 작성~~ ✅ 완료 (legal/ 8벌)
+3. **GitHub Pages 활성화** (사용자 액션, 5분) — 위 가이드대로
+4. **약관 URL 박제** (5분) — 활성화 직후 8개 URL 동작 확인 + PROGRESS.md에 고정
+5. **4개 앱 재검증** (1시간) — v2 보안 규칙 + 신 Auth 패턴으로 골든패스 다시. DevTools에서 `permission-denied` 없는지.
+6. **카드사 정보 검증** (1시간) — 2번 앱 8개 카드사 전화번호/앱 경로 공식 사이트 확인 → `cardIssuerData.ts` 갱신
+7. **앱 아이콘 + 스크린샷** (반나절~1일)
+8. **앱 소개 문구** (1시간) — 짧은/긴 버전
+9. **Node 24 업그레이드** + **Firebase 콘솔 별도 웹앱 등록(2·3·4번)** + **앱인토스 콘솔 입점** (반나절)
+10. **출시 검수 신청** (영업일 7일)
 
 ## 다음 세션 시작 시
 1. 이 PROGRESS.md 먼저 읽기
