@@ -24,7 +24,11 @@
 
 ## Firebase 설정
 - **프로젝트 ID**: mycloud-5ce96
-- **앱 등록**: life-wage (웹앱), 추가 앱은 콘솔에서 차례로 등록 필요
+- **앱 등록**: 4개 앱 모두 별도 웹앱 등록 완료 (2026-05-04)
+  - life-wage: `1:534353428772:web:6f781190613f6bcf1eb3b1`
+  - card-funeral: `1:534353428772:web:43df02cdab8c52741eb3b1`
+  - gyeongjo-book: `1:534353428772:web:55ca399d7746f9571eb3b1`
+  - coin-saver: `1:534353428772:web:468914f92d21f18b1eb3b1`
 - **컬렉션 prefix**:
   - `wage_*` - 내 인생 시급
   - `card_*` - 내 카드 장례식 (예정)
@@ -103,8 +107,7 @@
 - `card_funerals/{funeralId}`: { userId, cardName, issuer, totalAnnualFee, funeralDate }
 
 ### 환경변수 (.env.local)
-- mycloud-5ce96 동일 키 사용. 현재는 APP_ID도 life-wage와 공유 중
-- ⚠️ 출시 전 Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신 필요
+- mycloud-5ce96 동일 키 사용. APP_ID는 별도 웹앱 등록 완료 (`...:web:43df02cdab8c52741eb3b1`)
 
 ### 검증 완료
 - ✅ tsc --noEmit 0 errors
@@ -136,8 +139,7 @@
 - `gyeongjo_records/{recordId}`: { userId, counterpartyName, amount, direction(gave/received), eventType, eventDate, memo, createdAt } — 단일 컬렉션, 사람별 집계는 클라이언트에서 동적 계산
 
 ### 환경변수 (.env.local)
-- mycloud-5ce96 동일 키 사용. 현재는 APP_ID도 life-wage와 공유 중
-- ⚠️ 출시 전 Firebase 콘솔에서 gyeongjo-book 별도 웹앱 등록 후 APP_ID 갱신 필요
+- mycloud-5ce96 동일 키 사용. APP_ID는 별도 웹앱 등록 완료 (`...:web:55ca399d7746f9571eb3b1`)
 
 ### 차별화 포인트
 - 컬러: `#059669` 그린 (1번 핑크 / 2번 다크 톤과 시각적 구분)
@@ -174,8 +176,7 @@
 - `coin_transactions/{txId}`: { userId, paymentAmount, savedCoin, roundedTo, memo, createdAt } — 클라이언트 정렬
 
 ### 환경변수 (.env.local)
-- mycloud-5ce96 동일 키 사용. 현재는 APP_ID도 life-wage와 공유 중
-- ⚠️ 출시 전 Firebase 콘솔에서 coin-saver 별도 웹앱 등록 후 APP_ID 갱신 필요
+- mycloud-5ce96 동일 키 사용. APP_ID는 별도 웹앱 등록 완료 (`...:web:468914f92d21f18b1eb3b1`)
 
 ### 차별화 포인트
 - 컬러: `#F59E0B` 골드 (1번 핑크 / 2번 다크 / 3번 그린과 시각적 구분)
@@ -299,6 +300,12 @@
   - 우리 앱 이름 표기 갱신: `우리원카드` → `우리WON카드`
   - 6/8 카드사(삼성/현대/KB/우리/하나/롯데) 전화번호 정확성 확인
   - 앱 메뉴 경로는 변경 가능성 있어 V2에서 사용자 피드백 기반 갱신 예정 — 약관 면책 조항(card-funeral-terms 제11조 4항)으로 보호
+- ✅ **Node 24 업그레이드 + Firebase 별도 웹앱 4개 등록 (2026-05-04)**
+  - Node 22 → 24.15.0 (granite/ait deploy 호환)
+  - Firebase 콘솔에서 card-funeral / gyeongjo-book / coin-saver 별도 웹앱 등록 완료
+  - 4개 앱 `.env.local`의 `VITE_FIREBASE_APP_ID` 갱신 (life-wage는 기존 유지)
+  - 4개 앱 모두 Node 24 환경에서 빌드 검증 통과 (tsc 0 errors + vite build 성공)
+  - 빌드 결과: life-wage 1614 KB / card-funeral 1624 KB / gyeongjo-book 1620 KB / coin-saver 1622 KB (gzip ~483 KB)
 
 ### 약관 URL 박제 (2026-05-04 검증 완료)
 
@@ -330,10 +337,10 @@
 4. ~~카드사 정보 검증~~ ✅ 완료 (전화번호 8/8 확인, 신한·NH 갱신, 앱 경로는 약관 면책)
 5. ~~앱 아이콘~~ ✅ V1 완료 (4개 600×600 PNG + 4개 1100×800 썸네일, V2 교체는 출시 후)
 6. ~~앱 설명 문구~~ ✅ V1 완료 (`marketing/app-descriptions.md`, 4개 × 5가지 자산)
-7. **Node 24 업그레이드** + **Firebase 콘솔 별도 웹앱 등록(2·3·4번)** ⭐ 다음 진행 (반나절)
+7. ~~Node 24 업그레이드 + Firebase 콘솔 별도 웹앱 등록(2·3·4번)~~ ✅ 완료 (2026-05-04)
 8. **스크린샷** (4개 × 5장, 반나절~1일) — 실기기 또는 시뮬레이터 캡처
 9. **4개 앱 재검증** (1시간) — v2 보안 규칙 + 신 Auth 패턴으로 골든패스 다시. DevTools에서 `permission-denied` 없는지.
-10. **앱인토스 콘솔 등록 + 출시 검수 신청** (영업일 7일)
+10. **앱인토스 콘솔 등록 + 출시 검수 신청** (영업일 7일) ⭐ **최종 단계**
 
 ## 다음 세션 시작 시
 1. 이 PROGRESS.md 먼저 읽기
@@ -342,7 +349,7 @@
 4. docs/skills/ 의 apps-in-toss.md, tds-mobile.md 참고
 
 ## 출시 전 체크리스트 (모든 앱 공통)
-- [ ] Node 24로 업그레이드 (granite build/deploy 위해)
+- [x] Node 24로 업그레이드 (2026-05-04: v24.15.0, 4개 앱 빌드 검증 통과)
 - [x] Firebase Auth Anonymous 도입 + 보안 규칙 잠그기 (2026-04-28: firestore.rules 통합 작성, 4개 앱 useTossUser 신 패턴 적용 — 1번 브라우저 검증 통과, 2·3·4번 빌드 통과)
 - [x] 사업자 등록 완료 (2026-04-28: 일반과세자 / 응용 소프트웨어 개발 + 광고 대행업)
 - [ ] 콘솔에서 각 앱 등록 + API 키 발급
@@ -350,9 +357,9 @@
 - [ ] 출시 검수 신청 (영업일 7일 소요)
 - [x] 서비스 이용약관 + 개인정보 처리방침 작성 (2026-05-04: 8벌 + GitHub Pages 호스팅 완료)
 - [ ] (2번 앱) 카드사 해지 정보(전화번호/앱 경로) 출시 전 각 카드사 공식 사이트에서 최종 검증
-- [ ] (2번 앱) Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신
-- [ ] (3번 앱) Firebase 콘솔에서 gyeongjo-book 별도 웹앱 등록 후 APP_ID 갱신
+- [x] (2번 앱) Firebase 콘솔에서 card-funeral 별도 웹앱 등록 후 APP_ID 갱신 (2026-05-04)
+- [x] (3번 앱) Firebase 콘솔에서 gyeongjo-book 별도 웹앱 등록 후 APP_ID 갱신 (2026-05-04)
 - [ ] (3번 앱) Home 검색 영역 일반 `<input>` 처리 부분 출시 전 TDS `SearchField` 컴포넌트로 재시도
-- [ ] (4번 앱) Firebase 콘솔에서 coin-saver 별도 웹앱 등록 후 APP_ID 갱신
+- [x] (4번 앱) Firebase 콘솔에서 coin-saver 별도 웹앱 등록 후 APP_ID 갱신 (2026-05-04)
 - [ ] Storage `/media` 경로 보안 강화 검토 (FitMeal/MyCloud 영향)
 - [ ] Aitory 정확한 운영 규칙 확인 후 firestore.rules v3 갱신
