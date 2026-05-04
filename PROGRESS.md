@@ -342,8 +342,82 @@
 9. **4개 앱 재검증** (1시간) — v2 보안 규칙 + 신 Auth 패턴으로 골든패스 다시. DevTools에서 `permission-denied` 없는지.
 10. **앱인토스 콘솔 등록 + 출시 검수 신청** (영업일 7일) ⭐ **최종 단계**
 
+## 2026-05-04 작업 일지
+
+### 오늘 처리한 일 (총 9개 commit)
+- ✅ 약관 8벌 작성 + GitHub Pages 호스팅 + Public 전환 + Jekyll 빌드 에러 해결
+- ✅ 카드사 정보 검증 (신한 1544-7000, NH농협 1644-4000 갱신, 우리WON카드 표기)
+- ✅ 약관 연령 수정 (만 14세 → 만 19세, 토스 정책 일치)
+- ✅ 아이콘 4개 + 썸네일 4개 V1 생성 (8개 PNG, 222KB, 600×600 + 1100×800)
+- ✅ 마케팅 카피 4개 앱 × 5자산 (영문명/부제/상세/키워드/한국어명)
+- ✅ Node 22 → 24.15.0 업그레이드 (granite/ait deploy 호환)
+- ✅ Firebase 별도 웹앱 4개 등록 (각자 고유 APP_ID)
+- ✅ 4개 앱 .env.local 갱신 + Node 24 환경 빌드 검증 100% 통과
+
+### 4개 앱 빌드 결과 (Node 24.15.0)
+| 앱 | tsc | vite build | bundle (gzip) |
+|---|---|---|---|
+| life-wage | ✅ 0 errors | ✅ 1.54s | 1614 KB (482 KB) |
+| card-funeral | ✅ 0 errors | ✅ 1.56s | 1624 KB (485 KB) |
+| gyeongjo-book | ✅ 0 errors | ✅ 1.53s | 1620 KB (483 KB) |
+| coin-saver | ✅ 0 errors | ✅ 1.55s | 1622 KB (484 KB) |
+
+### 4개 앱 Firebase APP_ID (별도 등록)
+- life-wage: `1:534353428772:web:6f781190613f6bcf1eb3b1`
+- card-funeral: `1:534353428772:web:43df02cdab8c52741eb3b1`
+- gyeongjo-book: `1:534353428772:web:55ca399d7746f9571eb3b1`
+- coin-saver: `1:534353428772:web:468914f92d21f18b1eb3b1`
+
+### 약관 URL 8개 (콘솔 등록용)
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-privacy
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/life-wage-terms
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-privacy
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/card-funeral-terms
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-privacy
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/gyeongjo-book-terms
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-privacy
+- https://yumi-kim-79.github.io/yumi-toss-miniapps/legal/coin-saver-terms
+
+## 내일 시작 가이드 (2026-05-05~)
+
+### 환경 확인 명령어
+```bash
+cd ~/yumi-toss
+node --version  # v24.15.0 확인
+nvm use 24  # 혹시 다른 버전이면
+git log --oneline -10  # 어제 작업 확인
+git status  # clean이어야 함
+cat PROGRESS.md  # 진척 상황 확인
+claude  # Claude Code 시작
+```
+
+### 내일 첫 작업 — 토스 콘솔 등록
+
+#### 시작 전 준비물 체크리스트
+- [ ] 사업자등록증 PDF/이미지 (앱 몬스터, 528-73-00609)
+- [ ] 통장 사본 PDF/이미지 (정산용)
+- [ ] 대표자 신분증 사본 (필요 시)
+- [ ] 4개 APP_ID (위 박제됨)
+- [ ] 약관 URL 8개 (위 박제됨)
+- [ ] 아이콘 4개 (`~/yumi-toss/assets/icons/`)
+- [ ] 썸네일 4개 (`~/yumi-toss/assets/thumbnails/`)
+- [ ] 마케팅 카피 (`~/yumi-toss/marketing/app-descriptions.md`)
+
+#### 작업 순서
+1. 토스 앱인토스 개발자 사이트 접속
+   - https://developers-apps-in-toss.toss.im
+2. 워크스페이스/사업자 정보 등록 (사업자: 앱 몬스터)
+3. 4개 앱 각각 등록 (반나절~1일)
+   - 한국어명/영문명/부제/상세설명/키워드
+   - 아이콘 + 썸네일 업로드
+   - 약관 URL 입력
+4. 스크린샷 촬영 (4개 × 5장 권장)
+5. 샌드박스 실기기 테스트
+6. 검수 신청 → 영업일 7일 대기
+7. 출시! 🚀
+
 ## 다음 세션 시작 시
-1. 이 PROGRESS.md 먼저 읽기
+1. 이 PROGRESS.md 먼저 읽기 (특히 "내일 시작 가이드" 섹션)
 2. 마지막으로 git log 확인하여 최신 상태 파악
 3. 다음 작업할 앱 폴더로 cd
 4. docs/skills/ 의 apps-in-toss.md, tds-mobile.md 참고
