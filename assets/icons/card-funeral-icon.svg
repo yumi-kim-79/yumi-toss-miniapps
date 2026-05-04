@@ -1,0 +1,10 @@
+<svg width="600" height="600" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#1F2937"/>
+  <path d="M 180 240 Q 180 140 300 140 Q 420 140 420 240 L 420 470 L 180 470 Z" fill="#FFFFFF"/>
+  <text x="300" y="290" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="84" font-weight="900" fill="#1F2937" letter-spacing="8">RIP</text>
+  <rect x="218" y="335" width="164" height="100" rx="10" fill="#1F2937"/>
+  <rect x="234" y="362" width="90" height="8" fill="#FFFFFF" opacity="0.55"/>
+  <rect x="234" y="382" width="64" height="8" fill="#FFFFFF" opacity="0.35"/>
+  <rect x="320" y="402" width="48" height="14" rx="3" fill="#FFFFFF" opacity="0.65"/>
+  <line x1="80" y1="490" x2="520" y2="490" stroke="#FFFFFF" stroke-width="4" opacity="0.7"/>
+</svg>

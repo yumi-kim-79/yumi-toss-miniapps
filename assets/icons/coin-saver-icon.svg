@@ -1,0 +1,12 @@
+<svg width="600" height="600" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="600" fill="#F59E0B"/>
+  <circle cx="300" cy="270" r="150" fill="#FFFFFF"/>
+  <circle cx="300" cy="270" r="134" fill="none" stroke="#F59E0B" stroke-width="6"/>
+  <text x="300" y="320" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="170" font-weight="900" fill="#F59E0B">₩</text>
+  <circle cx="158" cy="475" r="42" fill="#FFFFFF"/>
+  <circle cx="158" cy="475" r="34" fill="none" stroke="#F59E0B" stroke-width="3"/>
+  <text x="158" y="492" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="46" font-weight="900" fill="#F59E0B">₩</text>
+  <circle cx="442" cy="495" r="36" fill="#FFFFFF"/>
+  <circle cx="442" cy="495" r="29" fill="none" stroke="#F59E0B" stroke-width="3"/>
+  <text x="442" y="510" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" font-weight="900" fill="#F59E0B">₩</text>
+</svg>

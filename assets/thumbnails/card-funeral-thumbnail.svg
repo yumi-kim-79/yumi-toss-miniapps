@@ -1,0 +1,14 @@
+<svg width="1100" height="800" viewBox="0 0 1100 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1100" height="800" fill="#1F2937"/>
+  <g transform="translate(80, 160)">
+    <path d="M 60 160 Q 60 30 220 30 Q 380 30 380 160 L 380 460 L 60 460 Z" fill="#FFFFFF"/>
+    <text x="220" y="220" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="92" font-weight="900" fill="#1F2937" letter-spacing="10">RIP</text>
+    <rect x="100" y="290" width="240" height="140" rx="12" fill="#1F2937"/>
+    <rect x="124" y="328" width="130" height="10" fill="#FFFFFF" opacity="0.55"/>
+    <rect x="124" y="354" width="92" height="10" fill="#FFFFFF" opacity="0.35"/>
+    <rect x="248" y="382" width="64" height="18" rx="3" fill="#FFFFFF" opacity="0.65"/>
+    <line x1="-30" y1="490" x2="470" y2="490" stroke="#FFFFFF" stroke-width="4" opacity="0.6"/>
+  </g>
+  <text x="540" y="340" font-family="'Apple SD Gothic Neo','AppleSDGothicNeo','Helvetica Neue','Arial Unicode MS',sans-serif" font-size="92" font-weight="900" fill="#FFFFFF">내 카드 장례식</text>
+  <text x="540" y="430" font-family="'Apple SD Gothic Neo','AppleSDGothicNeo','Helvetica Neue','Arial Unicode MS',sans-serif" font-size="44" font-weight="500" fill="#FFFFFF" opacity="0.85">안 쓰는 카드 정리와 추모</text>
+</svg>
