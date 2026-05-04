@@ -53,7 +53,7 @@
 - **인증**: Firebase Anonymous Auth (이름·연락처·이메일 등 직접 식별 정보 미수집)
 - **데이터 저장**: Firebase Firestore (Google Cloud 한국 리전 `asia-northeast3`)
 - **광고**: 비바리퍼블리카(토스) IAA SDK
-- **이용 연령**: 만 14세 이상
+- **이용 연령**: 만 19세 이상
 - **무료 서비스**: 별도 결제·구독 절차 없음
 
 ---
